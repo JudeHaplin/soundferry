@@ -10,6 +10,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)
 ![Version](https://img.shields.io/badge/version-1.5.0-brightgreen)
+![AI Generated](https://img.shields.io/badge/code-100%25%20AI%20generated-8a5cf6)
+
+> [!IMPORTANT]
+> **本项目全部代码由 AI 生成。**
+> 从第一行采集代码到界面、托盘、安装脚本和这份 README，均由 AI 编写；
+> 人类作者提供的是需求描述、真机测试（Windows 11 + Xiaomi Sound L16A）与交互取舍。
+> 请把本项目当作「AI 能做出什么」的一个样本，而不是经过长期工程打磨的生产级库——
+> 遇到问题欢迎提 issue，也请自行评估后再用于重要场合。
 
 | 「有风」主题 | 「夜风」主题 | 快速音量面板 |
 | --- | --- | --- |
@@ -70,7 +78,11 @@ AirPlay / RAOP（RTSP + RTP，AirPlay 2 兼容）──► Xiaomi Sound
 
 基于 [pyatv](https://github.com/postlund/pyatv) 的 RAOP 实现，项目思路参考
 [zxc503/win-audio-to-airplay](https://github.com/zxc503/win-audio-to-airplay)
-（PyAudioWPatch + ffmpeg + pyatv），本项目在其基础上做了三处关键改造：
+（PyAudioWPatch + ffmpeg + pyatv），界面设计参考
+[Ding-Kyoma/AirFlash](https://github.com/Ding-Kyoma/AirFlash)（仅视觉风格）。
+完整清单见下方「[参考项目与致谢](#参考项目与致谢)」。
+
+本项目在原思路基础上做了三处关键改造：
 
 1. **去掉 ffmpeg**：不再把 PCM 编成 MP3 再让 pyatv 解码，而是直接把实时 PCM 源
    注入 pyatv 内部的 `open_source` 接缝（无损、省一次编解码、少一层延迟）。
@@ -141,6 +153,40 @@ SoundFerry.spec         PyInstaller 打包配置
 
 依赖仅限本机与局域网，不上传任何数据。
 
+## 参考项目与致谢
+
+没有下面这些项目，本项目不可能存在。
+
+### 思路与设计参考
+
+| 项目 | 许可证 | 参考内容 |
+| --- | --- | --- |
+| [zxc503/win-audio-to-airplay](https://github.com/zxc503/win-audio-to-airplay) | MIT | 最早验证「Windows 采集 → AirPlay 推流」可行性的实现（PyAudioWPatch + ffmpeg + pyatv）。本项目沿用其整体思路，采集与推流部分重写并去掉 ffmpeg |
+| [Ding-Kyoma/AirFlash](https://github.com/Ding-Kyoma/AirFlash) | 未声明标准开源协议 | **仅参考界面视觉风格**（布局、留白、控件观感）。该仓库未声明标准开源许可证，特此说明：本项目**未复制其任何代码或资源文件** |
+| [WorkBuddy](https://www.workbuddy.cn) 的「有风」外观主题 | — | 内置主题「有风」的配色灵感与色值参考 |
+
+### 核心依赖
+
+| 依赖 | 许可证 | 用途 |
+| --- | --- | --- |
+| [pyatv](https://github.com/postlund/pyatv) | MIT | AirPlay / RAOP 协议实现（RTSP + RTP、音量控制） |
+| [PyAudioWPatch](https://github.com/s0d3s/PyAudioWPatch) | Apache-2.0 | WASAPI 回环采集（整机 + 指定进程） |
+| [soxr](https://github.com/dofuuz/python-soxr) | LGPL-2.1 | 高质量重采样 48kHz → 44.1kHz |
+| [pycaw](https://github.com/AndreMiras/pycaw) | MIT | Windows 音频会话与端点音量控制 |
+| [pywebview](https://github.com/r0x0r/pywebview) | BSD-3-Clause | 原生窗口外壳（WebView2 承载界面） |
+| [pythonnet](https://github.com/pythonnet/pythonnet) | MIT | pywebview 与 WinForms 的 .NET 互操作 |
+| [pystray](https://github.com/moses-palmer/pystray) | LGPL-3.0 | 系统托盘图标与菜单 |
+| [Pillow](https://github.com/python-pillow/Pillow) | MIT-CMU | 图标生成与图像处理 |
+| [NumPy](https://github.com/numpy/numpy) | BSD-3-Clause | 音频缓冲与增益计算 |
+| [PyInstaller](https://github.com/pyinstaller/pyinstaller) | GPL-2.0 + 例外条款 | 打包为独立 exe |
+| [NSIS](https://nsis.sourceforge.io/) | zlib/libpng | 制作安装程序 |
+
+### 商标声明
+
+小米 / Xiaomi / Sound 是小米科技有限责任公司的商标。本项目为个人非官方项目，
+与小米公司无任何关联，也未获得其背书。
+
 ## 许可证
+
 
 [MIT](LICENSE)
