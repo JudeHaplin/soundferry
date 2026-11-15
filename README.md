@@ -17,7 +17,7 @@
 
 ## 下载
 
-到 [**Releases**](../../releases) 页面下载 `SoundFerry_声渡_Setup_vX.Y.Z.exe`（用户级安装，不需要管理员权限），双击安装即可。
+到 [**Releases**](../../releases) 页面下载 `SoundFerry_Setup_vX.Y.Z.exe`（用户级安装，不需要管理员权限），双击安装即可。
 
 或者直接从源码运行（见下文「从源码运行」）。
 
@@ -100,7 +100,7 @@ python -m venv .venv
 
 :: 2. 用 NSIS 制作安装包（需要 NSIS 3.x，makensis 在 PATH 中）
 makensis installer\installer.nsi
-:: 产物：SoundFerry_声渡_Setup_v1.5.0.exe
+:: 产物：SoundFerry_Setup_v1.5.0.exe
 ```
 
 ## 命令行

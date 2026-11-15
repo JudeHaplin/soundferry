@@ -10,7 +10,7 @@
 !include "Sections.nsh"
 
 Name "${APPNAME}"
-OutFile "..\SoundFerry_声渡_Setup_v${VERSION}.exe"
+OutFile "..\SoundFerry_Setup_v${VERSION}.exe"
 Unicode true
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
