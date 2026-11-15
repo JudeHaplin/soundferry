@@ -1,0 +1,17 @@
+# AirPlay 音频推流核心
+pyatv==0.18.0
+# pyatv 0.18 依赖 srptools 1.x，装上 2.x 会在配对阶段报 TypeError
+srptools<2
+# Windows WASAPI 回环采集
+PyAudioWPatch>=0.2.12.7
+# 重采样与音量处理
+numpy>=1.26
+soxr>=0.3.7
+# 端点静音（“静音电脑本机”）
+pycaw>=20240210
+# 系统托盘图标
+pystray>=0.19
+pillow>=10.0
+# 原生窗口外壳（WebView2）
+pywebview>=5.0
+pythonnet>=3.0
