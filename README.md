@@ -83,7 +83,7 @@ AirPlay / RAOP（RTSP + RTP，AirPlay 2 兼容）──► Xiaomi Sound
 需要 Windows 10/11 和 Python 3.11 - 3.13：
 
 ```bat
-git clone https://github.com/<你的用户名>/soundferry.git
+git clone https://github.com/JudeHaplin/soundferry.git
 cd soundferry
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
