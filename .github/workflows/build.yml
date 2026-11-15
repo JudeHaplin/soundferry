@@ -79,9 +79,11 @@ jobs:
           $file = (Get-ChildItem SoundFerry_Setup_v*.exe | Select-Object -First 1).FullName
           $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
           $size = (Get-Item $file).Length
-          gh release view $tag 2>$null
+          gh release view $tag *> $null
           if ($LASTEXITCODE -ne 0) {
             gh release create $tag --title "声渡 SoundFerry $tag" --generate-notes
           }
           gh release upload $tag $file --clobber
-          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "``````nSHA256  $hash`n大小    $size 字节`n``````"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Host "已附加 $file 到 Release $tag"
+          "SHA256：$hash`n文件大小：$size 字节" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
