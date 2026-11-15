@@ -115,6 +115,22 @@ makensis installer\installer.nsi
 :: 产物：SoundFerry_Setup_v1.5.0.exe
 ```
 
+## 自动同步与发版
+
+本项目配了三层同步机制，改完代码不用手动推：
+
+| 触发方式 | 做什么 | 怎么用 |
+| --- | --- | --- |
+| **提交后自动推送** | 每次 `git commit` 后自动 `push` 到 `origin/main`，失败只提示不阻塞 | 首次运行 `tools\install_hooks.bat` 启用（钩子在 `.githooks/post-commit`） |
+| **一键同步** | 暂存全部改动 → 提交 → 推送，没有改动就什么都不做 | 双击根目录 `同步到GitHub.bat` |
+| **打 tag 自动发版** | GitHub Actions 在 Windows 上重新打包 exe、制作安装包并附加到 Release | `git tag v1.6.0 && git push origin v1.6.0` |
+
+临时不想让某次提交被推上去：`set SKIP_PUSH=1` 后再提交。
+
+工作流在 [`.github/workflows/build.yml`](.github/workflows/build.yml)，
+发版前会自动校验 `soundferry/__init__.py`、`installer/installer.nsi` 与 tag 三处版本号是否一致，
+不一致直接失败——所以升版本时记得三处一起改。想复现同样的构建，也可以手动在 Actions 页面点 `Run workflow`。
+
 ## 命令行
 
 不打开界面也可以直接推流：

@@ -1,0 +1,30 @@
+#!/bin/sh
+# 提交后自动把 main 分支推送到 GitHub。
+#
+# 启用：tools/install_hooks.bat  （或 git config core.hooksPath .githooks）
+# 跳过：SKIP_PUSH=1 git commit ...
+#
+# 只在 main 分支生效；推送失败不会影响提交本身，只在终端给出提示。
+
+# 非 main 分支不处理
+branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+[ "$branch" = "main" ] || exit 0
+
+# 显式要求跳过
+[ "$SKIP_PUSH" = "1" ] && exit 0
+
+# 没配远程仓库就不用管
+git remote get-url origin >/dev/null 2>&1 || exit 0
+
+# 有正在跑的 rebase / merge 就等它结束
+[ -d "$(git rev-parse --git-dir)/rebase-merge" ] && exit 0
+[ -d "$(git rev-parse --git-dir)/rebase-apply" ] && exit 0
+
+echo "→ 自动同步到 GitHub (origin/main) ..."
+if git push --quiet origin main 2>/tmp/soundferry-autopush.err; then
+    echo "✓ 已推送到 origin/main"
+else
+    echo "⚠ 自动推送失败（提交已保存在本地，网络恢复后可运行 git push 重试）："
+    sed 's/^/    /' /tmp/soundferry-autopush.err
+fi
+exit 0

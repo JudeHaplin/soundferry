@@ -1,0 +1,87 @@
+name: build-release
+
+# 打 tag 时自动构建 exe + 安装包，并挂到对应 Release 上
+# 手动触发：Actions 页面 → build-release → Run workflow
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: 版本号一致性检查
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $nsi = Select-String -Path installer\installer.nsi -Pattern '!define VERSION "([\d\.]+)"'
+          $nsiVer = $nsi.Matches[0].Groups[1].Value
+          $pyVer = (Select-String -Path soundferry\__init__.py -Pattern '__version__ = "([\d\.]+)"').Matches[0].Groups[1].Value
+          Write-Host "tag=$tag  nsi=$nsiVer  py=$pyVer"
+          if ($pyVer -ne $nsiVer) {
+            Write-Error "版本号不一致：soundferry/__init__.py=$pyVer，installer/installer.nsi=$nsiVer"
+            exit 1
+          }
+          if ("v$pyVer" -ne $tag -and "${{ github.event_name }}" -eq "push") {
+            Write-Error "tag ($tag) 与代码里的版本号 (v$pyVer) 不一致"
+            exit 1
+          }
+
+      - name: PyInstaller 打包
+        run: pyinstaller SoundFerry.spec --noconfirm
+
+      - name: 安装 NSIS
+        run: choco install nsis -y --no-progress
+
+      - name: 制作安装包
+        shell: pwsh
+        run: |
+          $ver = (Select-String -Path soundferry\__init__.py -Pattern '__version__ = "([\d\.]+)"').Matches[0].Groups[1].Value
+          & "C:\Program Files (x86)\NSIS\makensis.exe" installer\installer.nsi
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem SoundFerry_Setup_v*.exe | Format-Table Name, Length
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: SoundFerry-installer
+          path: SoundFerry_Setup_v*.exe
+          retention-days: 14
+
+      - name: 附加到 Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $file = (Get-ChildItem SoundFerry_Setup_v*.exe | Select-Object -First 1).FullName
+          $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+          $size = (Get-Item $file).Length
+          gh release view $tag 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --title "声渡 SoundFerry $tag" --generate-notes
+          }
+          gh release upload $tag $file --clobber
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "``````nSHA256  $hash`n大小    $size 字节`n``````"
